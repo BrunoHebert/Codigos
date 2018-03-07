@@ -110,6 +110,7 @@ void selecao() {
 
     int soma_peso;
     int best = 0;
+    int peso_best=0;
     int menor;
     float media=0;
     float soma=0;
@@ -136,9 +137,11 @@ void selecao() {
             best=fitness[0];
             idx_melhor = 0;
             menor = fitness[0];
+            peso_best = soma_peso;
         } else if (fitness[i]>best) {
             best=fitness[i];
             idx_melhor = i;
+            peso_best = soma_peso;
         }
         soma = soma + fitness[i];
         // guarda menor valor para normalizar posteriormente
@@ -150,13 +153,15 @@ void selecao() {
     //fputs(str,fp); //Grave a string, caracter a caracter
     melhor = best;
     // o que fazer se o melhor for negativo? antes de normalizar
-    normalizar(menor);
+//    normalizar(menor);
 
     //string str;
     printf( "%d\n", geracao);
     cout << "Melhor Elemento: " << idx_melhor;
     cout << "\n";
     cout << "Melhor Valor na mochila: " << best;
+    cout << "\n";
+    cout << "Peso Carregado: " << peso_best;
     cout << "\n";
   /*  cout << ". Média: " << media;
     cout << "\n";

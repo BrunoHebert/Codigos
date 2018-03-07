@@ -6,14 +6,12 @@
 using namespace std;
 
 
-//FILE *fp;
-    
 // Configuração do AG
 int tam_populacao;
 int num_obj = 13;
-int cromossomo[1000][13];
-int novo_cromossomo[1000][13];
-double fitness[1000];
+int cromossomo[100][13];
+int novo_cromossomo[100][13];
+double fitness[100];
 int idx_melhor;
 double melhor;
 int geracao;
@@ -28,20 +26,20 @@ int valor[13] = { 6,  7,  9,  5, 10,  7, 4, 3,  6,  7, 99, 9, 2000};
 
 
 double normalizar(int min) {
-    
-    //int min = 0; // minimum value of the fitness
-    int total = 0; // sum of all fitness
+
+    //int min = 0;
+    int total = 0;
     double acumulado = 0;
     double media = 0;
-    
+
     // menor valor passa a ser 0
     for (int i=0; i<tam_populacao; i++) {
         fitness[i] = fitness[i] - min;
         total = total + fitness[i];
     }
-    
+
     media = total/tam_populacao;
-    
+
     // calcula a propabilidade proporcional ao fitness e acumula o valor
     for (int i=0; i<tam_populacao; i++) {
         //if (i!=1) acumulado = acumulado + fitness[i-1];
@@ -49,47 +47,47 @@ double normalizar(int min) {
         acumulado = fitness[i];
         //debug cout << "fitness acumulado " << i << ": " << fitness[i] << ". acu: " << acumulado << "\n";
     }
-    
+
     return media;
-    
+
 }
 
 void substitui_populacao() {
-    
+
     //// substitui a população antiga
     for (int i=0; i<tam_populacao; i++) {
         if (i!=idx_melhor) // elitismo
-            for (int no=0; no<num_obj; no++) 
+            for (int no=0; no<num_obj; no++)
                 cromossomo[i][no] = novo_cromossomo[i][no];
-    }    
-    
+    }
+
 }
 
 void crossover(int pai, int mae) {
-    
+
     int cp = rand() % num_obj;
     int tmp;
-    
+
     // troca de material genetico ate o crossover point (cp)
     for (int i=0; i<cp; i++) {
         tmp = cromossomo[pai][i];
         novo_cromossomo[pai][i] = novo_cromossomo[mae][i];
         novo_cromossomo[mae][i] = tmp;
     }
-    
+
 }
 
 
 void selecao() {
-    
+
     double sorteia;
-    
+
     // sorteia n individuos para proxima geracao
     for (int n=0; n<tam_populacao; n++) {
-        sorteia = rand() % 101; // sorteia entre 0-100;
-        sorteia = sorteia/100;
+        sorteia = rand() % 11; // sorteia entre 0-100;
+        sorteia = sorteia/10;
         //debug cout << sorteia << ": ";
-        
+
         // faz uma busca no valor acumulado
         for (int i=0; i<tam_populacao; i++) {
             if (fitness[i]>=sorteia) {
@@ -109,7 +107,7 @@ void selecao() {
 }
 
  void avaliar() {
-    
+
     int soma_peso;
     int best = 0;
     int menor;
@@ -117,24 +115,25 @@ void selecao() {
     float soma=0;
 
     for (int i=0; i<tam_populacao; i++) {
-       
+
         fitness[i] = 0;
         soma_peso = 0;
         for (int g=0; g<num_obj; g++) {
             // fitness = soma de todos os itens na sacola
-            fitness[i] = fitness[i] + valor[g] * cromossomo[i][g];
+            fitness[i] = fitness[i] + (valor[g] * cromossomo[i][g]);
+            //valor[0]*cromossomo[i][0] + valor[1]*cromossomo[i][1] + valor[2]*cromossomo[i][2] + valor[3]*cromossomo[i][3] + valor[4]*cromossomo[i][4];
+
             // calcula o peso total
-            soma_peso =  soma_peso + peso[g] * cromossomo[i][g];
+            soma_peso =  soma_peso + (peso[g] * cromossomo[i][g]);
             //peso[0]*cromossomo[i][0] +  peso[1]*cromossomo[i][1] +  peso[2]*cromossomo[i][2] +  peso[3]*cromossomo[i][3] +   peso[4]*cromossomo[i][4];
-            //valor[0]*cromossomo[i][0] + valor[1]*cromossomo[i][1] + valor[2]*cromossomo[i][2] + valor[3]*cromossomo[i][3] + valor[4]*cromossomo[i][4];   
-        }
+                  }
         // se ultrapassar a capacidade da mochila, aplica penalidade
-        if (soma_peso>capacidade){ 
+        if (soma_peso>capacidade){
             fitness[i] = -soma_peso;
          //   cout <<"Passou da Capacidade: " << fitness[i] << "\n";
         }// acumula o melhor resultado de fitness
         if (i==0) {
-            best=fitness[0]; 
+            best=fitness[0];
             idx_melhor = 0;
             menor = fitness[0];
         } else if (fitness[i]>best) {
@@ -147,26 +146,37 @@ void selecao() {
         //debug cout << fitness[i] <<"\n";
     }
     media = soma/tam_populacao;
-  
+
     //fputs(str,fp); //Grave a string, caracter a caracter
     melhor = best;
     // o que fazer se o melhor for negativo? antes de normalizar
     normalizar(menor);
-    
+
     //string str;
-    printf( "%d\t%d\t%f\n", geracao, best, media);
-    cout << "Best: " << best;
+    printf( "%d\n", geracao);
+    cout << "Melhor Elemento: " << idx_melhor;
     cout << "\n";
-    cout << ". Média: " << media;
+    cout << "Melhor Valor na mochila: " << best;
     cout << "\n";
-    cout << ". Menor: " << menor << "\n\n";
+  /*  cout << ". Média: " << media;
     cout << "\n";
+    cout << ". Menor: " << menor << "\n";
+  //  cout << "\n";*/
+    cout << "Melhor resultado em " << geracao << " gerações: ";
+
+
+    for (int g=0; g<num_obj; g++) {
+      cout << cromossomo[idx_melhor][g];
+    }
+    cout << "\n\n";
+
+
 }
 
 void iniciar_populacao(int tp) {
-    
+
     tam_populacao = tp;
-    
+
     for (int i=0; i<tam_populacao; i++) {
         for (int g=0; g<num_obj; g++) {
             cromossomo[i][g] = rand() % 2;
@@ -177,49 +187,41 @@ void iniciar_populacao(int tp) {
 }
 
 void mutacao(double taxa) {
-    
+
     int muda;
-    
+
     for (int i=0; i<tam_populacao; i++) {
-        if (i!=idx_melhor) // nao faz mutacao no melhor dos melhores (elitismo)
-        if (rand() % 101<=taxa) {
+        if (i!=idx_melhor) // nao faz mutacao no melhor dos melhores
+        if (rand() % 11<=taxa) {
             muda = rand() % num_obj;
             if (cromossomo[i][muda]==0) cromossomo[i][muda]=1; else cromossomo[i][muda]=0;
             //cout << "Mutacao: " << i << "=" << muda;
         }
     }
-    
+
 }
 
 
 int main(int argc, char** argv) {
-    
-    // se algum item individual ultrapassa o valor da mochila, usar schema
-    
-    srand ( time(NULL) ); // initialize random seed
-    
-    //fp=fopen("dados2.dat","w");    
-    
+
+
+    srand ( time(NULL) );
+
     iniciar_populacao(50);
     avaliar();
-    
-    for (geracao=1; geracao<=1000; geracao++) {
+
+    for (geracao=1; geracao<=100; geracao++) {
         cout << "Geração: " << geracao << ": ";
         selecao(); // na seleção já é feito o crossover
         substitui_populacao();
         mutacao(0.4);
         avaliar();
-        //if (melhor==125) break;
+        //if (melhor==125) break; 125 e a solucao otima para essas entradas do problema
     }
-    cout << "Melhor resultado em " << geracao << " gerações.";
-    for (int g=0; g<num_obj; g++) cout << cromossomo[idx_melhor][g];
-    cout << "\n";
-    
-    
-  //  fclose(fp);
 
-    //execlp("gnuplot","gnuplot","plot",NULL);    
-    
+
+
+
     return 0;
 
 }
